@@ -17,11 +17,95 @@ implements KeyListener {
 
     public Game() {
         window = new JFrame();
+        player = new Snake();
+        food = new Food(player);
+        graphics = new Graphics(this);
+
+        window.add(graphics);
 
         window.setTitle("Snake");
-        window.setSize(width * dimension, height * dimension);
+        window.setSize(width * dimension + 2, height * dimension + 4);
         window.setVisible(true);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+    }
+
+    public void start() {
+        graphics.state = "RUNNING";
+    }
+
+    public void update() {
+        if(graphics.state == "RUNNING") {
+            if(check_food_collision())
+                player.grow();
+                food.spawn(player);
+        }
+
+        else if(check_wall_collision() || check_self_collision()) {
+            graphics.state = "END";
+        }
+
+        else {
+            player.move();
+        }
+    }
+
+    private boolean check_wall_collision() {
+        if(player.getX() < 0 || player.getX() >= width * dimension || player.getY() < 0 || player.getY() >= height * dimension) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean check_food_collision() {
+        if(player.getX() == food.getX() * dimension && player.getY() == food.getY() * dimension) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean check_self_collision() {
+        for(int i = 1; i < player.getBody().size(); i++) {
+            if(player.getX() == player.getBody().get(i).x && player.getY() == player.getBody() .get(i).y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    @Override 
+    public void keyTyped(KeyEvent e ) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        if(graphics.state == "RUNNING") {
+            if(keyCode == KeyEvent.VK_W && player.getMove() != "DOWN") {
+                player.up();
+            }
+
+            if(keyCode == KeyEvent.VK_W && player.getMove() != "UP") {
+                player.down();
+            }
+
+            if(keyCode == KeyEvent.VK_W && player.getMove() != "RIGHT") {
+                player.left();
+            }
+
+            if(keyCode == KeyEvent.VK_W && player.getMove() != "LEFT") {
+                player.right();
+            }
+        }
+        else {
+            this.start();
+        }
+    }
+
+    
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 
     public Snake getPlayer() {
@@ -46,43 +130,6 @@ implements KeyListener {
 
     public void setWindow(JFrame window) {
         this.window = window;
-    }
-
-
-
-
-    @Override 
-    public void keyTyped(KeyEvent e ) {
-
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-
-        if(keyCode == KeyEvent.VK_W) {
-            player.up();
-        }
-
-        else if (keyCode == KeyEvent.VK_W ) {
-            player.down();
-
-        }
-
-        else if (keyCode == KeyEvent.VK_W) {
-            player.left();
-
-        }
-
-        else {
-            player.right();
-        }
-
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
     }
 
 }
