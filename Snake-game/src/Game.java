@@ -1,135 +1,142 @@
 
-import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import javax.swing.JFrame;
 
 public class Game 
-implements KeyListener {
+implements KeyListener{
+	private Snake player;
+	private Food food;
+	private Graphics graphics;
+	
+	private JFrame window;
+	
+	//Dimensoes da janela ao abrir o game
+	public static final int width = 40;
+	public static final int height = 40;
+	public static final int dimension = 20;
+	
+	public Game() {
+		window = new JFrame();
+		
+		player = new Snake();
+		
+		food = new Food(player);
+		
+		graphics = new Graphics(this);
+		
+		window.add(graphics);
+		
+		window.setTitle("Snake");
+		window.setSize(width * dimension + 4, height * dimension + dimension + 8);
+		window.setVisible(true);
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public void start() {
+		graphics.state = "RUNNING";
+	}
+	
+	public void update() {
+		if(graphics.state == "RUNNING") {
+			if(check_food_collision()) {
+				player.grow();
+				food.spawn(player);
+			}
+			else if(check_wall_collision() || check_self_collision()) {
+				graphics.state = "END";
+			}
+			else {
+				player.move();
+			}
+		}
+	}
+	
+	private boolean check_wall_collision() {
+		if(player.getX() < 0 || player.getX() >= width * dimension 
+				|| player.getY() < 0|| player.getY() >= height * dimension) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean check_food_collision() {
+		if(player.getX() == food.getX() * dimension && player.getY() == food.getY() * dimension) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean check_self_collision() {
+		for(int i = 1; i < player.getBody().size(); i++) {
+			if(player.getX() == player.getBody().get(i).x &&
+					player.getY() == player.getBody().get(i).y) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    private Snake player;
-    private Food food;
-    private Graphics graphics;
+	@Override
+	public void keyTyped(KeyEvent e) {	}
 
-    private JFrame window;
-    public static int width = 30;
-    public static final int height = 30;
-    public static final int dimension = 20;
+	@Override
+	public void keyPressed(KeyEvent e) {
+		
+		int keyCode = e.getKeyCode();
+		
+		if(graphics.state == "RUNNING") {
+			if(keyCode == KeyEvent.VK_W && player.getMove() != "DOWN") {
+				player.up();
+			}
+		
+			if(keyCode == KeyEvent.VK_S && player.getMove() != "UP") {
+				player.down();
+			}
+		
+			if(keyCode == KeyEvent.VK_A && player.getMove() != "RIGHT") {
+				player.left();
+			}
+		
+			if(keyCode == KeyEvent.VK_D && player.getMove() != "LEFT") {
+				player.right();
+			}
+		}
+		else {
+			this.start();
+		}
+		
+		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+			this.start();
+		}
+	}
 
-    public Game() {
-        window = new JFrame();
-        player = new Snake();
-        food = new Food(player);
-        graphics = new Graphics(this);
+	@Override
+	public void keyReleased(KeyEvent e) {	}
 
-        window.add(graphics);
+	public Snake getPlayer() {
+		return player;
+	}
 
-        window.setTitle("Snake");
-        window.setSize(width * dimension + 2, height * dimension + 4);
-        window.setVisible(true);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-    }
+	public void setPlayer(Snake player) {
+		this.player = player;
+	}
 
-    public void start() {
-        graphics.state = "RUNNING";
-    }
+	public Food getFood() {
+		return food;
+	}
 
-    public void update() {
-        if(graphics.state == "RUNNING") {
-            if(check_food_collision())
-                player.grow();
-                food.spawn(player);
-        }
+	public void setFood(Food food) {
+		this.food = food;
+	}
 
-        else if(check_wall_collision() || check_self_collision()) {
-            graphics.state = "END";
-        }
+	public JFrame getWindow() {
+		return window;
+	}
 
-        else {
-            player.move();
-        }
-    }
-
-    private boolean check_wall_collision() {
-        if(player.getX() < 0 || player.getX() >= width * dimension || player.getY() < 0 || player.getY() >= height * dimension) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean check_food_collision() {
-        if(player.getX() == food.getX() * dimension && player.getY() == food.getY() * dimension) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean check_self_collision() {
-        for(int i = 1; i < player.getBody().size(); i++) {
-            if(player.getX() == player.getBody().get(i).x && player.getY() == player.getBody() .get(i).y) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    @Override 
-    public void keyTyped(KeyEvent e ) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        if(graphics.state == "RUNNING") {
-            if(keyCode == KeyEvent.VK_W && player.getMove() != "DOWN") {
-                player.up();
-            }
-
-            if(keyCode == KeyEvent.VK_W && player.getMove() != "UP") {
-                player.down();
-            }
-
-            if(keyCode == KeyEvent.VK_W && player.getMove() != "RIGHT") {
-                player.left();
-            }
-
-            if(keyCode == KeyEvent.VK_W && player.getMove() != "LEFT") {
-                player.right();
-            }
-        }
-        else {
-            this.start();
-        }
-    }
-
-    
-    @Override
-    public void keyReleased(KeyEvent e) {
-
-    }
-
-    public Snake getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Snake player) {
-        this.player = player;
-    }
-
-    public Food getFood() {
-        return food;
-    }
-
-    public void setFood(Food food) {
-        this.food = food;
-    }
-
-    public JFrame getWindow() {
-        return window;
-    }
-
-    public void setWindow(JFrame window) {
-        this.window = window;
-    }
-
+	public void setWindow(JFrame window) {
+		this.window = window;
+	}
+	
 }
